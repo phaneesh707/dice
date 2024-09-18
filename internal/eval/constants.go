@@ -31,4 +31,5 @@ const (
 	Null    string = "null"
 	null    string = "null"
 	NULL    string = "null"
+	Docs    string = "DOCS"
 )

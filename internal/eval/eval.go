@@ -2209,9 +2209,43 @@ func evalCommand(args []string, store *dstore.Store) []byte {
 		return evalCommandList()
 	case Help:
 		return evalCommandHelp()
+	case Docs:
+		return evalCommandDocs(args[1:])
 	default:
 		return diceerrors.NewErrWithFormattedMessage("unknown subcommand '%s'. Try COMMAND HELP.", subcommand)
 	}
+}
+
+// evalCommandDocs 
+// Returns documentary information about commands. By default, 
+// the reply includes all of the server's commands. 
+func evalCommandDocs(args []string,) []byte {
+
+	type cmdInfo struct {
+		summary string
+	}
+
+	cmdDocs := make(map[string]cmdInfo)
+
+	if len(args) == 0 {
+		for key,metaData := range DiceCmds {
+			cmdDocs[key] = cmdInfo {
+				summary: metaData.Info,
+			}
+		}
+		return clientio.Encode(cmdDocs,false)
+	}
+
+	for i:=0; i<len(args);i++ {
+		cmd := strings.ToUpper(args[i])
+		if cmdMetaDataValue,ok := DiceCmds[cmd]; ok {
+			cmdDocs[cmd] = cmdInfo{
+				summary: cmdMetaDataValue.Info,
+			}
+		}
+	}
+
+	return clientio.Encode(cmdDocs,false)
 }
 
 // evalCommandHelp prints help message
